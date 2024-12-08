@@ -1,9 +1,9 @@
-package GaussInterpolation;
+package Interpolation;
 
 import java.lang.reflect.Array;
 import java.util.Scanner;
 
-public class Main {
+public class GaussInterpolation {
 
     public static void main(String[] args) {
         // Узлы из примера

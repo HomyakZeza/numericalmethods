@@ -1,9 +1,9 @@
-package SLAE_GaussMethod;
+package SLAE;
 
 
 import java.util.Scanner;
 
-public class Main {
+public class SLAE_GaussMethod {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);

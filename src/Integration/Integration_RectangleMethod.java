@@ -1,6 +1,6 @@
-package Integration_RectangleMethod;
+package Integration;
 
-public class Main {
+public class Integration_RectangleMethod {
 
     public static void main(String[] args) {
         // Интервалы интегрирования
