@@ -1,6 +1,5 @@
 package Interpolation;
 
-import java.lang.reflect.Array;
 import java.util.Scanner;
 
 public class GaussInterpolation {
@@ -26,21 +25,38 @@ public class GaussInterpolation {
         System.out.println("Введите значение x для интерполяции: ");
         double ourX = scanner.nextDouble();
 
+        // Выбор центрального узла
+        int midIndex = findClosestNode(argsX, ourX);
+        System.out.println("Ближайший узел (x0): x[" + midIndex + "] = " + argsX[midIndex]);
+
         // Интерполяция для первой функции
-        double res1 = interpolation(argsX, argsY1, ourX);
+        double res1 = interpolation(argsX, argsY1, ourX, midIndex);
         System.out.println("Результат интерполяции для y = 1 / x: " + res1);
 
         // Интерполяция для второй функции
-        double res2 = interpolation(argsX, argsY2, ourX);
+        double res2 = interpolation(argsX, argsY2, ourX, midIndex);
         System.out.println("Результат интерполяции для y = x^4: " + res2);
     }
 
+    // Метод нахождения ближайшего узла
+    public static int findClosestNode(double[] argsX, double ourX) {
+        int closestIndex = 0;
+        double minDistance = Math.abs(ourX - argsX[0]);
+        for (int i = 1; i < argsX.length; i++) {
+            double distance = Math.abs(ourX - argsX[i]);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestIndex = i;
+            }
+        }
+        return closestIndex;
+    }
+
     // Метод интерполяции
-    public static double interpolation(double[] argsX, double[] argsY, double ourX) {
-        int num = Array.getLength(argsX); // Количество узлов
+    public static double interpolation(double[] argsX, double[] argsY, double ourX, int midIndex) {
+        int num = argsX.length; // Количество узлов
         double h = argsX[1] - argsX[0]; // Шаг узлов
-        int midIndex = num / 2; // Индекс центрального узла
-        double qConst = (ourX - argsX[midIndex]) / h; // q для центрального узла
+        double qConst = (ourX - argsX[midIndex]) / h; // q
         double q = qConst; // Текущее значение q
         double[][] delY = new double[num][num]; // Таблица конечных разностей
 
@@ -56,11 +72,26 @@ public class GaussInterpolation {
             }
         }
 
+        // Вывод таблицы конечных разностей
+        System.out.println("\nТаблица конечных разностей:");
+        for (int i = 0; i < num; i++) {
+            System.out.print("y[" + i + "]");
+            for (int j = 0; j < num - i - 1; j++) {
+                System.out.printf("\t%.5f", delY[j][i]);
+            }
+            System.out.println();
+        }
+
         // Начальное значение интерполированной функции
         double ourY = argsY[midIndex];
+        System.out.println("\nШаги интерполяции:");
+        System.out.printf("Начальное значение: y[%d] = %.5f\n", midIndex, ourY);
+
         int iter = -1;
         int iter1 = -iter;
         ourY += qConst * delY[0][midIndex]; // Учет первой разности
+        System.out.printf("Добавляем первую разность: %.5f * %.5f = %.5f\n", qConst, delY[0][midIndex], qConst * delY[0][midIndex]);
+
         int g = 1;
         int factorial = 2;
 
@@ -74,10 +105,21 @@ public class GaussInterpolation {
                 q *= (qConst - Math.abs(Math.min(iter1, Math.abs(iter))));
                 iter--;
             }
-            ourY += (q / factorial) * delY[g][midIndex - nowIter];
+
+            // Проверка выхода индекса за пределы массива
+            if (midIndex - nowIter < 0 || midIndex - nowIter >= num) {
+                System.out.println("Индекс вышел за пределы таблицы. Пропускаем этот шаг.");
+                continue;
+            }
+
+            double term = (q / factorial) * delY[g][midIndex - nowIter];
+            System.out.printf("Добавляем %d-ю разность: %.5f * %.5f / %d! = %.5f\n", g + 1, q, delY[g][midIndex - nowIter], factorial, term);
+            ourY += term;
+
             g++;
             factorial *= cur + 3;
         }
         return ourY;
     }
+
 }
